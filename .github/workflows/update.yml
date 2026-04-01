@@ -24,7 +24,7 @@ jobs:
 
       - name: Update data
         env:
-          META_TOKEN: ${{ secrets.META_TOKEN }}
+          META_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
         run: python3 update_data.py
 
       - name: Commit changes
