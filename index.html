@@ -14,42 +14,49 @@
         header .meta { font-size: 13px; opacity: 0.85; }
         .refresh-btn { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 700; }
         .refresh-btn:hover { background: rgba(255,255,255,0.3); }
-        .container { max-width: 1200px; margin: 0 auto; padding: 28px 20px; }
-        .summary-bar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 28px; }
-        .summary-card { background: white; border-radius: 12px; padding: 18px 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); text-align: center; }
-        .summary-card .label { font-size: 12px; color: #65676b; text-transform: uppercase; margin-bottom: 6px; }
-        .summary-card .value { font-size: 26px; font-weight: 700; }
-        .summary-card .sub { font-size: 12px; color: #65676b; margin-top: 3px; }
-        .summary-card.good .value { color: #42b72a; }
-        .summary-card.blue .value { color: #1877f2; }
+        .container { max-width: 1280px; margin: 0 auto; padding: 28px 20px; }
+        .section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #65676b; margin-bottom: 10px; }
+        .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 10px; }
+        .summary-grid.row2 { grid-template-columns: repeat(4, 1fr); margin-bottom: 28px; }
+        .summary-card { background: white; border-radius: 12px; padding: 16px 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); border-left: 4px solid #e4e6eb; display: flex; flex-direction: column; gap: 4px; }
+        .summary-card .label { font-size: 11px; color: #65676b; text-transform: uppercase; letter-spacing: 0.05em; }
+        .summary-card .value { font-size: 24px; font-weight: 700; line-height: 1; }
+        .summary-card .sub { font-size: 11px; color: #65676b; margin-top: 2px; }
+        .card-blue { border-left-color: #1877f2; } .card-blue .value { color: #1877f2; }
+        .card-green { border-left-color: #42b72a; } .card-green .value { color: #42b72a; }
+        .card-yellow { border-left-color: #f0a500; } .card-yellow .value { color: #f0a500; }
+        .card-purple { border-left-color: #8b5cf6; } .card-purple .value { color: #8b5cf6; }
+        .card-teal { border-left-color: #0ea5e9; } .card-teal .value { color: #0ea5e9; }
         .section-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-        .dot { width: 10px; height: 10px; border-radius: 50%; background: #42b72a; animation: pulse 2s infinite; }
+        .dot { width: 10px; height: 10px; border-radius: 50%; background: #42b72a; animation: pulse 2s infinite; flex-shrink: 0; }
         @keyframes pulse { 0%,100%{box-shadow:0 0 0 3px rgba(66,183,42,0.2)} 50%{box-shadow:0 0 0 6px rgba(66,183,42,0.1)} }
         .campaigns { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px; }
         .campaign-card { background: white; border-radius: 14px; padding: 22px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); border-top: 4px solid #1877f2; }
         .paused-card { border-top-color: #ccc; opacity: 0.75; }
-        .campaign-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
-        .campaign-name { font-size: 15px; font-weight: 700; max-width: 200px; }
+        .campaign-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
+        .campaign-name { font-size: 14px; font-weight: 700; max-width: 220px; line-height: 1.3; }
         .acct-label { font-size: 11px; color: #65676b; margin-bottom: 14px; }
-        .badge { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+        .badge { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
         .badge.active { background: #e6f7e1; color: #42b72a; }
         .badge.paused { background: #f0f2f5; color: #65676b; }
-        .metrics-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-        .metric { text-align: center; padding: 10px 6px; background: #f7f8fa; border-radius: 10px; }
-        .m-val { font-size: 19px; font-weight: 700; }
-        .m-val.good { color: #42b72a; }
-        .m-val.warn { color: #f0a500; }
-        .m-label { font-size: 11px; color: #65676b; margin-top: 2px; }
-        .divider { height: 1px; background: #e4e6eb; margin: 12px 0; }
-        .engagement-bar { display: flex; gap: 8px; }
-        .eng-item { flex: 1; text-align: center; padding: 10px 6px; background: #f0f2f5; border-radius: 10px; }
-        .e-val { font-size: 16px; font-weight: 700; color: #1877f2; }
-        .e-label { font-size: 10px; color: #65676b; margin-top: 2px; }
-        .loading { text-align: center; padding: 40px; color: #65676b; }
-        .loading .spinner { display: inline-block; width: 30px; height: 30px; border: 3px solid #e4e6eb; border-top-color: #1877f2; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 16px; }
+        .metrics-section-title { font-size: 10px; font-weight: 700; text-transform: uppercase; color: #9ca3af; margin: 12px 0 6px; letter-spacing: 0.06em; }
+        .metrics-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .metrics-row.four { grid-template-columns: repeat(4, 1fr); }
+        .metric { text-align: center; padding: 9px 6px; background: #f7f8fa; border-radius: 10px; }
+        .m-val { font-size: 17px; font-weight: 700; line-height: 1.1; }
+        .m-label { font-size: 10px; color: #65676b; margin-top: 3px; }
+        .clr-green { color: #16a34a; } .clr-yellow { color: #d97706; } .clr-red { color: #dc2626; }
+        .clr-blue { color: #1877f2; } .clr-purple { color: #7c3aed; } .clr-neutral { color: #374151; }
+        .bg-green { background: #f0fdf4; } .bg-yellow { background: #fffbeb; } .bg-red { background: #fef2f2; }
+        .divider { height: 1px; background: #e4e6eb; margin: 12px 0 6px; }
+        .loading { text-align: center; padding: 60px; color: #65676b; }
+        .loading .spinner { display: inline-block; width: 32px; height: 32px; border: 3px solid #e4e6eb; border-top-color: #1877f2; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 16px; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        footer { text-align: center; color: #65676b; font-size: 12px; padding: 20px; border-top: 1px solid #e4e6eb; }
-        @media (max-width: 768px) { .summary-bar { grid-template-columns: repeat(2, 1fr); } .campaigns { grid-template-columns: 1fr; } }
+        .legend { display: flex; gap: 16px; margin-bottom: 18px; flex-wrap: wrap; }
+        .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #65676b; }
+        .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+        footer { text-align: center; color: #65676b; font-size: 12px; padding: 20px; border-top: 1px solid #e4e6eb; margin-top: 10px; }
+        @media (max-width: 900px) { .summary-grid, .summary-grid.row2 { grid-template-columns: repeat(2, 1fr); } .campaigns { grid-template-columns: 1fr; } .metrics-row.four { grid-template-columns: repeat(2, 1fr); } }
     </style>
 </head>
 <body>
@@ -60,60 +67,76 @@
         <button class="refresh-btn" onclick="refreshData()">🔄 Actualizar</button>
     </div>
 </header>
-<div class="container">
-    <div id="content" class="loading">
-        <div class="spinner"></div>
-        <p>Cargando datos...</p>
-    </div>
-</div>
+<div class="container"><div id="content" class="loading"><div class="spinner"></div><p>Cargando datos...</p></div></div>
 <footer>BePelican Meta Ads Dashboard · Datos en vivo · Meta Marketing API v19.0</footer>
 <script>
-    async function loadData() {
-        try {
-            const response = await fetch("data.json?t=" + new Date().getTime());
-            const data = await response.json();
-            renderDashboard(data);
-            document.getElementById("lastUpdate").textContent = "Actualizado: " + new Date(data.timestamp).toLocaleString("es-CO");
-        } catch (e) {
-            document.getElementById("content").innerHTML = '<p style="color: #e41c1c;">Error al cargar datos. Verifica que el workflow haya corrido.</p>';
-        }
-    }
-    function renderDashboard(data) {
-        var campaigns = data.campaigns;
-        var totals = data.totals;
-        var active = campaigns.filter(function(c) { return c.status === "ACTIVE"; });
-        var html = '<div class="summary-bar">' +
-            '<div class="summary-card blue"><div class="label">Gasto Total</div><div class="value">$' + Math.round(totals.spend).toLocaleString() + '</div><div class="sub">COP</div></div>' +
-            '<div class="summary-card"><div class="label">Alcance</div><div class="value">' + totals.reach.toLocaleString() + '</div><div class="sub">personas</div></div>' +
-            '<div class="summary-card good"><div class="label">CTR Promedio</div><div class="value">' + totals.ctr_avg.toFixed(2) + '%</div><div class="sub">benchmark: 1.0%</div></div>' +
-            '<div class="summary-card good"><div class="label">Mensajes</div><div class="value">' + totals.msgs.toLocaleString() + '</div><div class="sub">conexiones</div></div>' +
-            '<div class="summary-card"><div class="label">Campañas</div><div class="value">' + active.length + '</div><div class="sub">activas</div></div>' +
-            '</div>' +
-            '<div class="section-title"><div class="dot"></div> Campañas Activas</div>' +
-            '<div class="campaigns">' + active.map(renderCard).join("") + '</div>';
-        document.getElementById("content").innerHTML = html;
-    }
-    function renderCard(c) {
-        if (c.impressions === 0) {
-            return '<div class="campaign-card paused-card"><div class="campaign-header"><div class="campaign-name">' + c.name + '</div></div><p style="color: #65676b; font-size: 13px;">Sin datos</p></div>';
-        }
-        var ctrClass = c.ctr >= 1.0 ? "good" : "warn";
-        return '<div class="campaign-card">' +
-            '<div class="campaign-header"><div class="campaign-name">' + c.name + '</div><span class="badge active">● ACTIVA</span></div>' +
-            '<div class="acct-label">' + c.account + '</div>' +
-            '<div class="metrics-grid">' +
-            '<div class="metric"><div class="m-val ' + ctrClass + '">' + c.ctr.toFixed(2) + '%</div><div class="m-label">CTR</div></div>' +
-            '<div class="metric"><div class="m-val">$' + Math.round(c.spend).toLocaleString() + '</div><div class="m-label">Gasto</div></div>' +
-            '<div class="metric"><div class="m-val">' + c.reach.toLocaleString() + '</div><div class="m-label">Alcance</div></div>' +
-            '</div>' +
-            '<div class="divider"></div>' +
-            '<div class="engagement-bar">' +
-            '<div class="eng-item"><div class="e-val">' + c.msgs.toLocaleString() + '</div><div class="e-label">💬 Msgs</div></div>' +
-            '<div class="eng-item"><div class="e-val">' + c.link_clicks.toLocaleString() + '</div><div class="e-label">🔗 Clicks</div></div>' +
-            '</div></div>';
-    }
-    function refreshData() { loadData(); }
-    loadData();
+function fmt(v,pre,suf,dec){if(v===null||v===undefined||isNaN(v)||!isFinite(v))return'—';var n=parseFloat(v);pre=pre||'';suf=suf||'';dec=dec===undefined?0:dec;return pre+n.toLocaleString('es-CO',{minimumFractionDigits:dec,maximumFractionDigits:dec})+suf;}
+function div(a,b){if(!b||b===0)return null;return a/b;}
+function ctrC(v){if(v===null)return'clr-neutral';return v>=1.0?'clr-green':v>=0.5?'clr-yellow':'clr-red';}
+function cpcC(v){if(v===null)return'clr-neutral';return v<3000?'clr-green':v<6000?'clr-yellow':'clr-red';}
+function cpmgsC(v){if(v===null)return'clr-neutral';return v<10000?'clr-green':v<25000?'clr-yellow':'clr-red';}
+function convC(v){if(v===null)return'clr-neutral';return v>=5?'clr-green':v>=2?'clr-yellow':'clr-red';}
+function cpmC(v){if(v===null)return'clr-neutral';return v<10000?'clr-green':v<20000?'clr-yellow':'clr-red';}
+function freqC(v){if(v===null)return'clr-neutral';return v<2.0?'clr-green':v<3.5?'clr-yellow':'clr-red';}
+function bgC(c){return c==='clr-green'?'bg-green':c==='clr-yellow'?'bg-yellow':c==='clr-red'?'bg-red':'';}
+function cardColor(c){return c==='clr-green'?'card-green':c==='clr-yellow'?'card-yellow':'card-blue';}
+function mBox(v,lbl,cc,bg){return'<div class="metric '+(bg||'")><div class="m-val '+cc+'">'+v+'</div><div class="m-label">'+lbl+'</div></div>';}
+function renderSummary(t,campaigns){
+  var active=campaigns.filter(function(c){return c.status==='ACTIVE';});
+  var cpmgs=div(t.spend,t.msgs),cpc=div(t.spend,t.clicks),conv=t.clicks>0?t.msgs/t.clicks*100:null,cpm=t.impressions>0?t.spend/t.impressions*1000:null,freq=t.frequency||null;
+  return '<div class="section-label">Resumen general</div>'+
+    '<div class="summary-grid">'+
+    '<div class="summary-card card-blue"><div class="label">💰 Gasto Total</div><div class="value">'+fmt(t.spend,'$','',0)+'</div><div class="sub">COP</div></div>'+
+    '<div class="summary-card card-teal"><div class="label">👥 Alcance</div><div class="value">'+fmt(t.reach,'','',0)+'</div><div class="sub">personas únicas</div></div>'+
+    '<div class="summary-card card-green"><div class="label">💬 Mensajes</div><div class="value">'+fmt(t.msgs,'','',0)+'</div><div class="sub">conversaciones</div></div>'+
+    '<div class="summary-card card-purple"><div class="label">🖱️ Clics</div><div class="value">'+fmt(t.clicks,'','',0)+'</div><div class="sub">link clicks</div></div>'+
+    '</div>'+
+    '<div class="summary-grid row2">'+
+    '<div class="summary-card '+cardColor(cpmgsC(cpmgs))+'"><div class="label">✉️ Costo/Mensaje</div><div class="value '+cpmgsC(cpmgs)+'">'+fmt(cpmgs,'$','',0)+'</div><div class="sub">CPMgs · COP</div></div>'+
+    '<div class="summary-card '+cardColor(cpcC(cpc))+'"><div class="label">🖱️ Costo/Clic</div><div class="value '+cpcC(cpc)+'">'+fmt(cpc,'$','',0)+'</div><div class="sub">CPC · COP</div></div>'+
+    '<div class="summary-card '+cardColor(convC(conv))+'"><div class="label">🎯 Conv. a Mensaje</div><div class="value '+convC(conv)+'">'+fmt(conv,'','%',1)+'</div><div class="sub">Clics → Mensajes</div></div>'+
+    '<div class="summary-card card-teal"><div class="label">📊 CTR · CPM · Freq</div><div class="value clr-blue" style="font-size:16px;margin-top:2px;">CTR '+fmt(t.ctr_avg,'','%',2)+' | CPM '+fmt(cpm,'$','',0)+(freq?' | Freq '+fmt(freq,'','x',2):'')+' </div><div class="sub">'+active.length+' campañas activas</div></div>'+
+    '</div>';
+}
+function renderCard(c){
+  var cpc=div(c.spend,c.clicks||c.link_clicks),cpmgs=div(c.spend,c.msgs),conv=(c.clicks||c.link_clicks)>0?c.msgs/(c.clicks||c.link_clicks)*100:null,cpm=c.impressions>0?c.spend/c.impressions*1000:null,freq=c.frequency||null,ctr=c.ctr||null;
+  var isActive=c.status==='ACTIVE';
+  if(c.impressions===0&&c.spend===0)return'<div class="campaign-card paused-card"><div class="campaign-header"><div class="campaign-name">'+c.name+'</div><span class="badge paused">⏸ PAUSADA</span></div><div class="acct-label">'+(c.account||'')+'</div><p style="color:#65676b;font-size:13px;">Sin datos en el período</p></div>';
+  return'<div class="campaign-card'+(isActive?'':' paused-card')+'">'+
+    '<div class="campaign-header"><div class="campaign-name">'+c.name+'</div><span class="badge '+(isActive?'active':'paused')+'">'+(isActive?'● ACTIVA':'⏸ PAUSADA')+'</span></div>'+
+    '<div class="acct-label">'+(c.account||'')+'</div>'+
+    '<div class="metrics-section-title">Actividad</div><div class="metrics-row four">'+
+    mBox(fmt(c.spend,'$','',0),'Gasto COP','clr-blue','')+mBox(fmt(c.reach,'','',0),'Alcance','clr-neutral','')+mBox(fmt(c.impressions,'','',0),'Impresiones','clr-neutral','')+mBox(fmt(freq,'','x',2),'Frecuencia',freqC(freq),bgC(freqC(freq)))+
+    '</div><div class="divider"></div>'+
+    '<div class="metrics-section-title">Eficiencia</div><div class="metrics-row four">'+
+    mBox(fmt(ctr,'','%',2),'CTR',ctrC(ctr),bgC(ctrC(ctr)))+mBox(fmt(cpc,'$','',0),'CPC',cpcC(cpc),bgC(cpcC(cpc)))+mBox(fmt(cpm,'$','',0),'CPM',cpmC(cpm),bgC(cpmC(cpm)))+mBox(fmt(conv,'','%',1),'Conv. Msg',convC(conv),bgC(convC(conv)))+
+    '</div><div class="divider"></div>'+
+    '<div class="metrics-section-title">Conversión</div><div class="metrics-row">'+
+    mBox(fmt(c.msgs,'','',0),'💬 Mensajes','clr-green','bg-green')+mBox(fmt(cpmgs,'$','',0),'Costo/Msg',cpmgsC(cpmgs),bgC(cpmgsC(cpmgs)))+mBox(fmt(c.link_clicks,'','',0),'🔗 Link Clicks','clr-purple','')+
+    '</div></div>';
+}
+function renderDashboard(data){
+  var campaigns=data.campaigns||[],totals=data.totals||{};
+  var active=campaigns.filter(function(c){return c.status==='ACTIVE';}),paused=campaigns.filter(function(c){return c.status!=='ACTIVE';});
+  var html=renderSummary(totals,campaigns);
+  html+='<div class="legend"><div class="legend-item"><div class="legend-dot" style="background:#16a34a"></div> Buen rendimiento</div><div class="legend-item"><div class="legend-dot" style="background:#d97706"></div> Rendimiento medio</div><div class="legend-item"><div class="legend-dot" style="background:#dc2626"></div> Costo alto / bajo rendimiento</div></div>';
+  if(active.length>0){html+='<div class="section-title"><div class="dot"></div> Campañas Activas ('+active.length+')</div><div class="campaigns">'+active.map(renderCard).join('')+'</div>';}
+  if(paused.length>0){html+='<div class="section-title" style="color:#9ca3af;"><div class="dot" style="background:#ccc;animation:none"></div> Campañas Pausadas ('+paused.length+')</div><div class="campaigns">'+paused.map(renderCard).join('')+'</div>';}
+  document.getElementById('content').innerHTML=html;
+}
+async function loadData(){
+  try{
+    document.getElementById('content').innerHTML='<div class="loading"><div class="spinner"></div><p>Cargando datos...</p></div>';
+    const r=await fetch('data.json?t='+new Date().getTime());
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const data=await r.json();
+    renderDashboard(data);
+    var ts=data.timestamp?new Date(data.timestamp).toLocaleString('es-CO'):'desconocido';
+    document.getElementById('lastUpdate').textContent='Actualizado: '+ts;
+  }catch(e){document.getElementById('content').innerHTML='<div class="loading"><p style="color:#dc2626;font-weight:600;">⚠️ Error al cargar datos</p><p style="margin-top:8px;font-size:13px;">Verifica que el workflow de GitHub Actions haya corrido correctamente.</p></div>';}
+}
+function refreshData(){loadData();}
+loadData();
 </script>
 </body>
 </html>
