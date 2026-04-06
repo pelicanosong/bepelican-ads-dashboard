@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-04-05T09:33:48.833883",
+  "timestamp": "2026-04-06T10:04:24.077495",
   "campaigns": [
     {
       "account": "BePelican | Chepe",
@@ -7,16 +7,16 @@
       "status": "ACTIVE",
       "objective": "OUTCOME_ENGAGEMENT",
       "daily_budget": 50600,
-      "spend": 836072.0,
-      "impressions": 197189,
-      "clicks": 5003,
-      "ctr": 2.53716,
-      "cpc": 167.114132,
-      "reach": 105487,
-      "frequency": 1.86932,
-      "msgs": 1034,
-      "engagements": 57175,
-      "link_clicks": 1415
+      "spend": 891492.0,
+      "impressions": 210567,
+      "clicks": 5296,
+      "ctr": 2.515114,
+      "cpc": 168.333082,
+      "reach": 112360,
+      "frequency": 1.874039,
+      "msgs": 1112,
+      "engagements": 61075,
+      "link_clicks": 1529
     },
     {
       "account": "BePelican | Chepe",
@@ -58,16 +58,16 @@
       "status": "ACTIVE",
       "objective": "OUTCOME_ENGAGEMENT",
       "daily_budget": 20000,
-      "spend": 611502.0,
-      "impressions": 195080,
-      "clicks": 4133,
-      "ctr": 2.118618,
-      "cpc": 147.955964,
-      "reach": 105446,
-      "frequency": 1.850046,
-      "msgs": 735,
-      "engagements": 54997,
-      "link_clicks": 1121
+      "spend": 597140.0,
+      "impressions": 194140,
+      "clicks": 4105,
+      "ctr": 2.114453,
+      "cpc": 145.466504,
+      "reach": 105577,
+      "frequency": 1.838847,
+      "msgs": 743,
+      "engagements": 54885,
+      "link_clicks": 1125
     },
     {
       "account": "BePelican | Chepe",
@@ -258,11 +258,11 @@
     }
   ],
   "totals": {
-    "spend": 1447574.0,
-    "reach": 210933,
-    "msgs": 1769,
-    "impressions": 392269,
-    "clicks": 9136,
-    "ctr_avg": 2.3290140184414265
+    "spend": 1488632.0,
+    "reach": 217937,
+    "msgs": 1855,
+    "impressions": 404707,
+    "clicks": 9401,
+    "ctr_avg": 2.3229150966007506
   }
 }
