@@ -4,8 +4,8 @@ import os
 from datetime import datetime
 
 TOKEN = os.environ.get("META_ACCESS_TOKEN")
-ACCOUNTS = ["act_3166782", "act_5581288064452"]
-API_VERSION = "v21.0"
+ACCOUNTS = ["act_31667825", "act_5581288064452"]
+API_VERSION = "v21.0
 BASE_URL = f"https://graph.facebook.com/{API_VERSION}"
 
 # Períodos disponibles: (nombre_archivo, date_preset, etiqueta)
