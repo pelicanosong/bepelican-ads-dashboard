@@ -1,190 +1,404 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BePelican — Meta Ads Dashboard</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; color: #1c1e21; }
-        header { background: linear-gradient(135deg, #1877f2, #0a5fd8); color: white; padding: 20px 32px; display: flex; align-items: center; justify-content: space-between; }
-        header .logo { font-size: 22px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
-        header .logo span { background: white; color: #1877f2; border-radius: 8px; padding: 4px 10px; font-size: 14px; font-weight: 800; }
-        header .controls { display: flex; align-items: center; gap: 16px; }
-        header .meta { font-size: 13px; opacity: 0.85; }
-        .refresh-btn { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 700; }
-        .refresh-btn:hover { background: rgba(255,255,255,0.3); }
-        .container { max-width: 1280px; margin: 0 auto; padding: 28px 20px; }
-        .section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #65676b; margin-bottom: 10px; }
-        .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 10px; }
-        .summary-grid.row2 { margin-bottom: 28px; }
-        .summary-card { background: white; border-radius: 12px; padding: 16px 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); border-left: 4px solid #e4e6eb; display: flex; flex-direction: column; gap: 4px; }
-        .summary-card .label { font-size: 11px; color: #65676b; text-transform: uppercase; letter-spacing: 0.05em; }
-        .summary-card .value { font-size: 24px; font-weight: 700; line-height: 1; }
-        .summary-card .sub { font-size: 11px; color: #65676b; margin-top: 2px; }
-        .card-blue { border-left-color: #1877f2; } .card-blue .value { color: #1877f2; }
-        .card-green { border-left-color: #42b72a; } .card-green .value { color: #42b72a; }
-        .card-yellow { border-left-color: #f0a500; } .card-yellow .value { color: #f0a500; }
-        .card-purple { border-left-color: #8b5cf6; } .card-purple .value { color: #8b5cf6; }
-        .card-teal { border-left-color: #0ea5e9; } .card-teal .value { color: #0ea5e9; }
-        .section-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-        .dot { width: 10px; height: 10px; border-radius: 50%; background: #42b72a; animation: pulse 2s infinite; flex-shrink: 0; }
-        @keyframes pulse { 0%,100%{box-shadow:0 0 0 3px rgba(66,183,42,0.2)} 50%{box-shadow:0 0 0 6px rgba(66,183,42,0.1)} }
-        .campaigns { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px; }
-        .campaign-card { background: white; border-radius: 14px; padding: 22px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); border-top: 4px solid #1877f2; }
-        .paused-card { border-top-color: #ccc; opacity: 0.75; }
-        .campaign-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
-        .campaign-name { font-size: 14px; font-weight: 700; max-width: 220px; line-height: 1.3; }
-        .acct-label { font-size: 11px; color: #65676b; margin-bottom: 14px; }
-        .badge { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
-        .badge.active { background: #e6f7e1; color: #42b72a; }
-        .badge.paused { background: #f0f2f5; color: #65676b; }
-        .metrics-section-title { font-size: 10px; font-weight: 700; text-transform: uppercase; color: #9ca3af; margin: 12px 0 6px; letter-spacing: 0.06em; }
-        .metrics-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-        .metrics-row.four { grid-template-columns: repeat(4, 1fr); }
-        .metric { text-align: center; padding: 9px 6px; background: #f7f8fa; border-radius: 10px; }
-        .m-val { font-size: 17px; font-weight: 700; line-height: 1.1; }
-        .m-label { font-size: 10px; color: #65676b; margin-top: 3px; }
-        .clr-green { color: #16a34a; } .clr-yellow { color: #d97706; } .clr-red { color: #dc2626; }
-        .clr-blue { color: #1877f2; } .clr-purple { color: #7c3aed; } .clr-neutral { color: #374151; }
-        .bg-green { background: #f0fdf4; } .bg-yellow { background: #fffbeb; } .bg-red { background: #fef2f2; }
-        .divider { height: 1px; background: #e4e6eb; margin: 12px 0 6px; }
-        .loading { text-align: center; padding: 60px; color: #65676b; }
-        .loading .spinner { display: inline-block; width: 32px; height: 32px; border: 3px solid #e4e6eb; border-top-color: #1877f2; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 16px; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .legend { display: flex; gap: 16px; margin-bottom: 18px; flex-wrap: wrap; }
-        .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #65676b; }
-        .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
-        footer { text-align: center; color: #65676b; font-size: 12px; padding: 20px; border-top: 1px solid #e4e6eb; margin-top: 10px; }
-        @media (max-width: 900px) { .summary-grid, .summary-grid.row2 { grid-template-columns: repeat(2, 1fr); } .campaigns { grid-template-columns: 1fr; } .metrics-row.four { grid-template-columns: repeat(2, 1fr); } }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BePelican — Meta Ads Dashboard</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; color: #1c1e21; }
+
+    /* ── HEADER ── */
+    header {
+      background: linear-gradient(135deg, #1877f2, #0a5fd8);
+      color: white;
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo { font-size: 22px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+    .logo span { background: white; color: #1877f2; border-radius: 8px; padding: 4px 10px; font-size: 14px; font-weight: 800; }
+    .controls { display: flex; align-items: center; gap: 16px; }
+    .meta { font-size: 13px; opacity: 0.85; }
+    .refresh-btn {
+      background: rgba(255,255,255,0.2); color: white;
+      border: 1px solid rgba(255,255,255,0.3);
+      padding: 8px 16px; border-radius: 8px; cursor: pointer;
+      font-size: 13px; font-weight: 700; transition: all 0.2s;
+    }
+    .refresh-btn:hover { background: rgba(255,255,255,0.3); }
+    .refresh-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .refresh-btn.loading { opacity: 0.7; }
+
+    /* ── BARRA DE PERÍODOS ── */
+    .period-bar {
+      background: white;
+      border-bottom: 1px solid #e4e6eb;
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      overflow-x: auto;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .period-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #9ca3af;
+      padding: 14px 12px 14px 0;
+      white-space: nowrap;
+    }
+    .period-btn {
+      background: none;
+      border: none;
+      padding: 14px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #65676b;
+      cursor: pointer;
+      white-space: nowrap;
+      border-bottom: 3px solid transparent;
+      transition: all 0.15s;
+      position: relative;
+    }
+    .period-btn:hover { color: #1877f2; background: #f0f6ff; }
+    .period-btn.active {
+      color: #1877f2;
+      border-bottom-color: #1877f2;
+      background: #f0f6ff;
+    }
+    .period-btn .period-loading {
+      display: none;
+      width: 12px; height: 12px;
+      border: 2px solid #c7d8fc;
+      border-top-color: #1877f2;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+    .period-btn.loading-period .period-loading { display: inline-block; }
+    .period-separator { width: 1px; height: 20px; background: #e4e6eb; margin: 0 4px; }
+
+    /* ── CONTENEDOR ── */
+    .container { max-width: 1280px; margin: 0 auto; padding: 28px 20px; }
+
+    /* ── TARJETAS RESUMEN ── */
+    .section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #65676b; margin-bottom: 10px; }
+    .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 10px; }
+    .summary-grid.row2 { margin-bottom: 28px; }
+    .summary-card {
+      background: white; border-radius: 12px; padding: 16px 18px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+      border-left: 4px solid #e4e6eb;
+      display: flex; flex-direction: column; gap: 4px;
+      transition: box-shadow 0.2s;
+    }
+    .summary-card:hover { box-shadow: 0 3px 12px rgba(0,0,0,0.1); }
+    .summary-card .label { font-size: 11px; color: #65676b; text-transform: uppercase; letter-spacing: 0.05em; }
+    .summary-card .value { font-size: 24px; font-weight: 700; line-height: 1; }
+    .summary-card .sub { font-size: 11px; color: #65676b; margin-top: 2px; }
+    .card-blue   { border-left-color: #1877f2; } .card-blue .value   { color: #1877f2; }
+    .card-green  { border-left-color: #42b72a; } .card-green .value  { color: #42b72a; }
+    .card-yellow { border-left-color: #f0a500; } .card-yellow .value { color: #d97706; }
+    .card-purple { border-left-color: #8b5cf6; } .card-purple .value { color: #8b5cf6; }
+    .card-teal   { border-left-color: #0ea5e9; } .card-teal .value   { color: #0ea5e9; }
+    .card-orange { border-left-color: #f97316; } .card-orange .value { color: #f97316; }
+
+    /* ── SECCIÓN TITLE ── */
+    .section-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; background: #42b72a; animation: pulse 2s infinite; flex-shrink: 0; }
+    @keyframes pulse {
+      0%,100%{ box-shadow: 0 0 0 3px rgba(66,183,42,0.2); }
+      50%    { box-shadow: 0 0 0 6px rgba(66,183,42,0.1); }
+    }
+
+    /* ── CAMPAÑAS ── */
+    .campaigns { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px; }
+    .campaign-card {
+      background: white; border-radius: 14px; padding: 22px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08); border-top: 4px solid #1877f2;
+      transition: box-shadow 0.2s;
+    }
+    .campaign-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+    .paused-card { border-top-color: #ccc; opacity: 0.78; }
+    .campaign-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2px; }
+    .campaign-name { font-size: 14px; font-weight: 700; max-width: 240px; line-height: 1.3; }
+    .acct-label { font-size: 11px; color: #65676b; margin-bottom: 4px; }
+    .objective-label { font-size: 10px; color: #9ca3af; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .badge { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
+    .badge.active { background: #e6f7e1; color: #42b72a; }
+    .badge.paused { background: #f0f2f5; color: #65676b; }
+    .budget-badge {
+      font-size: 11px; color: #65676b;
+      background: #f0f2f5; border-radius: 6px;
+      padding: 2px 8px; margin-bottom: 12px;
+      display: inline-block;
+    }
+
+    /* ── MÉTRICAS ── */
+    .metrics-section-title { font-size: 10px; font-weight: 700; text-transform: uppercase; color: #9ca3af; margin: 12px 0 6px; letter-spacing: 0.06em; }
+    .metrics-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .metrics-row.four { grid-template-columns: repeat(4, 1fr); }
+    .metric { text-align: center; padding: 9px 6px; background: #f7f8fa; border-radius: 10px; }
+    .m-val { font-size: 17px; font-weight: 700; line-height: 1.1; }
+    .m-label { font-size: 10px; color: #65676b; margin-top: 3px; }
+    .obj-engagement { color: #1877f2; }
+    .obj-sales { color: #16a34a; }
+    .obj-awareness { color: #d97706; }
+    .clr-green   { color: #16a34a; } .clr-yellow { color: #d97706; } .clr-red    { color: #dc2626; }
+    .clr-blue    { color: #1877f2; } .clr-purple { color: #7c3aed; } .clr-neutral{ color: #374151; }
+    .bg-green  { background: #f0fdf4; } .bg-yellow { background: #fffbeb; } .bg-red { background: #fef2f2; }
+    .divider { height: 1px; background: #e4e6eb; margin: 12px 0 6px; }
+    .legend { display: flex; gap: 16px; margin-bottom: 18px; flex-wrap: wrap; }
+    .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #65676b; }
+    .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .loading { text-align: center; padding: 60px; color: #65676b; }
+    .spinner {
+      display: inline-block; width: 32px; height: 32px;
+      border: 3px solid #e4e6eb; border-top-color: #1877f2;
+      border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    footer { text-align: center; color: #65676b; font-size: 12px; padding: 20px; border-top: 1px solid #e4e6eb; margin-top: 10px; }
+    @media (max-width: 900px) {
+      .summary-grid, .summary-grid.row2 { grid-template-columns: repeat(2, 1fr); }
+      .campaigns { grid-template-columns: 1fr; }
+      .metrics-row.four { grid-template-columns: repeat(2, 1fr); }
+      .period-bar { padding: 0 16px; }
+      header { padding: 14px 16px; flex-wrap: wrap; gap: 10px; }
+    }
+  </style>
 </head>
 <body>
+
 <header>
-    <div class="logo">&#x1F9A4; BePelican <span>META ADS</span></div>
-    <div class="controls">
-        <div class="meta"><strong id="lastUpdate">Cargando...</strong></div>
-        <button class="refresh-btn" onclick="refreshData()">&#x1F504; Actualizar</button>
-    </div>
+  <div class="logo">🦤 BePelican <span>META ADS</span></div>
+  <div class="controls">
+    <div class="meta">Actualizado: <strong id="lastUpdate">Cargando...</strong></div>
+    <button class="refresh-btn" id="refreshBtn" onclick="refreshData()">🔄 Actualizar</button>
+  </div>
 </header>
-<div class="container"><div id="content" class="loading"><div class="spinner"></div><p>Cargando datos...</p></div></div>
-<footer>BePelican Meta Ads Dashboard &middot; Datos en vivo &middot; Meta Marketing API v19.0</footer>
+
+<nav class="period-bar" id="periodBar">
+  <span class="period-label">Período:</span>
+  <button class="period-btn" data-file="data_today.json" data-label="Hoy" onclick="switchPeriod(this)">Hoy <span class="period-loading"></span></button>
+  <div class="period-separator"></div>
+  <button class="period-btn" data-file="data_week.json" data-label="Esta semana" onclick="switchPeriod(this)">Esta semana <span class="period-loading"></span></button>
+  <div class="period-separator"></div>
+  <button class="period-btn active" data-file="data_month.json" data-label="Este mes" onclick="switchPeriod(this)">Este mes <span class="period-loading"></span></button>
+  <div class="period-separator"></div>
+  <button class="period-btn" data-file="data_last_month.json" data-label="Mes anterior" onclick="switchPeriod(this)">Mes anterior <span class="period-loading"></span></button>
+  <div class="period-separator"></div>
+  <button class="period-btn" data-file="data_3months.json" data-label="Últimos 3 meses" onclick="switchPeriod(this)">Últimos 3 meses <span class="period-loading"></span></button>
+</nav>
+
+<div class="container">
+  <div id="content" class="loading"><div class="spinner"></div><p>Cargando datos...</p></div>
+</div>
+
+<footer>BePelican Meta Ads Dashboard &middot; Datos en vivo &middot; Meta Marketing API v21.0</footer>
+
 <script>
-function fmt(v, pre, suf, dec) {
+  var currentFile  = 'data_month.json';
+  var currentLabel = 'Este mes';
+  var isLoading    = false;
+
+  function fmt(v, pre, suf, dec) {
     if (v === null || v === undefined || isNaN(v) || !isFinite(v)) return '—';
     var n = parseFloat(v);
-    pre = pre || ''; suf = suf || ''; dec = dec === undefined ? 0 : dec;
-    return pre + n.toLocaleString('es-CO', {minimumFractionDigits: dec, maximumFractionDigits: dec}) + suf;
-}
-function safeDiv(a, b) { return (!b || b === 0) ? null : a / b; }
-function ctrC(v) { if (v === null) return 'clr-neutral'; return v >= 1.0 ? 'clr-green' : v >= 0.5 ? 'clr-yellow' : 'clr-red'; }
-function cpcC(v) { if (v === null) return 'clr-neutral'; return v < 3000 ? 'clr-green' : v < 6000 ? 'clr-yellow' : 'clr-red'; }
-function cpmgsC(v) { if (v === null) return 'clr-neutral'; return v < 10000 ? 'clr-green' : v < 25000 ? 'clr-yellow' : 'clr-red'; }
-function convC(v) { if (v === null) return 'clr-neutral'; return v >= 5 ? 'clr-green' : v >= 2 ? 'clr-yellow' : 'clr-red'; }
-function cpmC(v) { if (v === null) return 'clr-neutral'; return v < 10000 ? 'clr-green' : v < 20000 ? 'clr-yellow' : 'clr-red'; }
-function freqC(v) { if (v === null) return 'clr-neutral'; return v < 2.0 ? 'clr-green' : v < 3.5 ? 'clr-yellow' : 'clr-red'; }
-function bgC(c) { return c === 'clr-green' ? 'bg-green' : c === 'clr-yellow' ? 'bg-yellow' : c === 'clr-red' ? 'bg-red' : ''; }
-function cardCls(c) { return c === 'clr-green' ? 'card-green' : c === 'clr-yellow' ? 'card-yellow' : 'card-blue'; }
-function mBox(v, lbl, cc, bg) {
-    var bgCls = bg || '';
-    return '<div class="metric ' + bgCls + '"><div class="m-val ' + cc + '">' + v + '</div><div class="m-label">' + lbl + '</div></div>';
-}
-function renderSummary(t, campaigns) {
-    var active = campaigns.filter(function(c) { return c.status === 'ACTIVE'; });
-    var cpmgs = safeDiv(t.spend, t.msgs);
-    var cpc = safeDiv(t.spend, t.clicks);
-    var conv = t.clicks > 0 ? t.msgs / t.clicks * 100 : null;
-    var cpm = t.impressions > 0 ? t.spend / t.impressions * 1000 : null;
-    var freq = t.frequency || null;
-    return '<div class="section-label">Resumen general</div>' +
-        '<div class="summary-grid">' +
-        '<div class="summary-card card-blue"><div class="label">Gasto Total</div><div class="value">' + fmt(t.spend, '$', '', 0) + '</div><div class="sub">COP</div></div>' +
-        '<div class="summary-card card-teal"><div class="label">Alcance</div><div class="value">' + fmt(t.reach, '', '', 0) + '</div><div class="sub">personas</div></div>' +
-        '<div class="summary-card card-green"><div class="label">Mensajes</div><div class="value">' + fmt(t.msgs, '', '', 0) + '</div><div class="sub">conversaciones</div></div>' +
-        '<div class="summary-card card-purple"><div class="label">Clics</div><div class="value">' + fmt(t.clicks, '', '', 0) + '</div><div class="sub">link clicks</div></div>' +
-        '</div>' +
-        '<div class="summary-grid row2">' +
-        '<div class="summary-card ' + cardCls(cpmgsC(cpmgs)) + '"><div class="label">Costo / Mensaje</div><div class="value ' + cpmgsC(cpmgs) + '">' + fmt(cpmgs, '$', '', 0) + '</div><div class="sub">CPMgs COP</div></div>' +
-        '<div class="summary-card ' + cardCls(cpcC(cpc)) + '"><div class="label">Costo / Clic</div><div class="value ' + cpcC(cpc) + '">' + fmt(cpc, '$', '', 0) + '</div><div class="sub">CPC COP</div></div>' +
-        '<div class="summary-card ' + cardCls(convC(conv)) + '"><div class="label">Conv. a Mensaje</div><div class="value ' + convC(conv) + '">' + fmt(conv, '', '%', 1) + '</div><div class="sub">Clics a Mensajes</div></div>' +
-        '<div class="summary-card card-teal"><div class="label">CTR / CPM / Freq</div><div class="value clr-blue" style="font-size:15px;margin-top:4px;">CTR ' + fmt(t.ctr_avg, '', '%', 2) + ' | CPM ' + fmt(cpm, '$', '', 0) + (freq ? ' | Freq ' + fmt(freq, '', 'x', 2) : '') + '</div><div class="sub">' + active.length + ' campanas activas</div></div>' +
-        '</div>';
-}
-function renderCard(c) {
-    var clks = c.clicks || c.link_clicks || 0;
-    var cpc = safeDiv(c.spend, clks);
-    var cpmgs = safeDiv(c.spend, c.msgs);
-    var conv = clks > 0 ? c.msgs / clks * 100 : null;
-    var cpm = c.impressions > 0 ? c.spend / c.impressions * 1000 : null;
-    var freq = c.frequency || null;
-    var ctr = c.ctr || null;
+    pre = pre || ''; suf = suf || ''; dec = (dec === undefined) ? 0 : dec;
+    return pre + n.toLocaleString('es-CO', { minimumFractionDigits: dec, maximumFractionDigits: dec }) + suf;
+  }
+  function safeDiv(a, b) { return (!b || b === 0) ? null : a / b; }
+  function ctrC(v)  { if (v===null) return 'clr-neutral'; return v >= 1.0 ? 'clr-green' : v >= 0.5 ? 'clr-yellow' : 'clr-red'; }
+  function cpcC(v)  { if (v===null) return 'clr-neutral'; return v < 3000 ? 'clr-green' : v < 6000 ? 'clr-yellow' : 'clr-red'; }
+  function cpmgsC(v){ if (v===null) return 'clr-neutral'; return v < 10000 ? 'clr-green' : v < 25000 ? 'clr-yellow' : 'clr-red'; }
+  function convC(v) { if (v===null) return 'clr-neutral'; return v >= 5 ? 'clr-green' : v >= 2 ? 'clr-yellow' : 'clr-red'; }
+  function cpmC(v)  { if (v===null) return 'clr-neutral'; return v < 10000 ? 'clr-green' : v < 20000 ? 'clr-yellow' : 'clr-red'; }
+  function freqC(v) { if (v===null) return 'clr-neutral'; return v < 2.0 ? 'clr-green' : v < 3.5 ? 'clr-yellow' : 'clr-red'; }
+  function bgC(c)   { return c==='clr-green' ? 'bg-green' : c==='clr-yellow' ? 'bg-yellow' : c==='clr-red' ? 'bg-red' : ''; }
+  function cardCls(c){ return c==='clr-green' ? 'card-green' : c==='clr-yellow' ? 'card-yellow' : 'card-blue'; }
+  function mBox(v, lbl, cc, bg) {
+    return '<div class="metric ' + (bg||'') + '"><div class="m-val ' + cc + '">' + v + '</div><div class="m-label">' + lbl + '</div></div>';
+  }
+  function objLabel(obj) {
+    var map = {'OUTCOME_ENGAGEMENT':'Interacción','OUTCOME_SALES':'Ventas','OUTCOME_AWARENESS':'Reconocimiento','OUTCOME_LEADS':'Leads','OUTCOME_TRAFFIC':'Tráfico','PAGE_LIKES':'Me gusta'};
+    return map[obj] || (obj ? obj.replace('OUTCOME_','').toLowerCase() : '');
+  }
+  function objClass(obj) {
+    if (!obj) return '';
+    if (obj.includes('ENGAGEMENT')) return 'obj-engagement';
+    if (obj.includes('SALES')) return 'obj-sales';
+    if (obj.includes('AWARENESS')) return 'obj-awareness';
+    return '';
+  }
+
+  function renderSummary(t, campaigns) {
+    var active = campaigns.filter(function(c){ return c.status === 'ACTIVE'; });
+    var cpmgs  = safeDiv(t.spend, t.msgs);
+    var cpc    = safeDiv(t.spend, t.clicks);
+    var conv   = (t.clicks > 0) ? (t.msgs / t.clicks * 100) : null;
+    var cpm    = (t.cpm && t.cpm > 0) ? t.cpm : (t.impressions > 0 ? t.spend / t.impressions * 1000 : null);
+    var freq   = (t.frequency && t.frequency > 0) ? t.frequency : null;
+    var ctr    = t.ctr_avg || 0;
+    var cpmgsColor = cpmgsC(cpmgs), cpcColor = cpcC(cpc), convColor = convC(conv);
+    var ctrColor = ctrC(ctr), cpmColor = cpmC(cpm), freqColor = freqC(freq);
+    var row1 = '<div class="summary-grid">'
+      + '<div class="summary-card card-blue"><div class="label">Gasto Total</div><div class="value">' + fmt(t.spend,'$','',0) + '</div><div class="sub">COP</div></div>'
+      + '<div class="summary-card card-teal"><div class="label">Alcance</div><div class="value">' + fmt(t.reach,'','',0) + '</div><div class="sub">personas</div></div>'
+      + '<div class="summary-card card-green"><div class="label">Mensajes</div><div class="value">' + fmt(t.msgs,'','',0) + '</div><div class="sub">conversaciones</div></div>'
+      + '<div class="summary-card card-purple"><div class="label">Clics</div><div class="value">' + fmt(t.clicks,'','',0) + '</div><div class="sub">link clicks</div></div>'
+      + '</div>';
+    var row2 = '<div class="summary-grid row2">'
+      + '<div class="summary-card ' + cardCls(cpmgsColor) + '"><div class="label">Costo / Mensaje</div><div class="value ' + cpmgsColor + '">' + fmt(cpmgs,'$','',0) + '</div><div class="sub">CPMgs COP</div></div>'
+      + '<div class="summary-card ' + cardCls(cpcColor) + '"><div class="label">Costo / Clic</div><div class="value ' + cpcColor + '">' + fmt(cpc,'$','',0) + '</div><div class="sub">CPC COP</div></div>'
+      + '<div class="summary-card ' + cardCls(convColor) + '"><div class="label">Conv. a Mensaje</div><div class="value ' + convColor + '">' + fmt(conv,'','%',1) + '</div><div class="sub">Clics → Mensajes</div></div>'
+      + '<div class="summary-card ' + cardCls(ctrColor) + '"><div class="label">CTR Promedio</div><div class="value ' + ctrColor + '">' + fmt(ctr,'','%',2) + '</div><div class="sub">' + active.length + ' campañas activas</div></div>'
+      + '</div>';
+    var row3 = '';
+    if (cpm || freq) {
+      row3 = '<div class="summary-grid" style="grid-template-columns:repeat(2,1fr);max-width:640px;margin-bottom:28px;">'
+        + (cpm ? '<div class="summary-card ' + cardCls(cpmColor) + '"><div class="label">CPM</div><div class="value ' + cpmColor + '">' + fmt(cpm,'$','',0) + '</div><div class="sub">costo por 1.000 impresiones</div></div>' : '')
+        + (freq ? '<div class="summary-card ' + cardCls(freqColor) + '"><div class="label">Frecuencia</div><div class="value ' + freqColor + '">' + fmt(freq,'','x',2) + '</div><div class="sub">veces visto (campañas activas)</div></div>' : '')
+        + '</div>';
+    } else { row3 = '<div style="margin-bottom:28px;"></div>'; }
+    return '<div class="section-label">Resumen general</div>' + row1 + row2 + row3;
+  }
+
+  function renderCard(c) {
+    var clks = c.link_clicks || c.clicks || 0;
+    var cpc = safeDiv(c.spend, clks), cpmgs = safeDiv(c.spend, c.msgs);
+    var conv = (clks > 0) ? (c.msgs / clks * 100) : null;
+    var cpm = (c.impressions > 0) ? (c.spend / c.impressions * 1000) : null;
+    var freq = (c.frequency && c.frequency > 0) ? c.frequency : null;
+    var ctr = (c.ctr && c.ctr > 0) ? c.ctr : null;
     var isActive = c.status === 'ACTIVE';
     if (c.impressions === 0 && c.spend === 0) {
-        return '<div class="campaign-card paused-card"><div class="campaign-header"><div class="campaign-name">' + c.name + '</div><span class="badge paused">PAUSADA</span></div><div class="acct-label">' + (c.account || '') + '</div><p style="color:#65676b;font-size:13px;">Sin datos</p></div>';
+      return '<div class="campaign-card paused-card">'
+        + '<div class="campaign-header"><div class="campaign-name">' + c.name + '</div><span class="badge paused">PAUSADA</span></div>'
+        + '<div class="acct-label">' + (c.account||'') + '</div>'
+        + (c.objective ? '<div class="objective-label ' + objClass(c.objective) + '">' + objLabel(c.objective) + '</div>' : '')
+        + '<p style="color:#65676b;font-size:13px;">Sin actividad en este período</p></div>';
     }
-    return '<div class="campaign-card' + (isActive ? '' : ' paused-card') + '">' +
-        '<div class="campaign-header"><div class="campaign-name">' + c.name + '</div>' +
-        '<span class="badge ' + (isActive ? 'active' : 'paused') + '">' + (isActive ? 'ACTIVA' : 'PAUSADA') + '</span></div>' +
-        '<div class="acct-label">' + (c.account || '') + '</div>' +
-        '<div class="metrics-section-title">Actividad</div>' +
-        '<div class="metrics-row four">' +
-        mBox(fmt(c.spend, '$', '', 0), 'Gasto COP', 'clr-blue', '') +
-        mBox(fmt(c.reach, '', '', 0), 'Alcance', 'clr-neutral', '') +
-        mBox(fmt(c.impressions, '', '', 0), 'Impresiones', 'clr-neutral', '') +
-        mBox(fmt(freq, '', 'x', 2), 'Frecuencia', freqC(freq), bgC(freqC(freq))) +
-        '</div>' +
-        '<div class="divider"></div>' +
-        '<div class="metrics-section-title">Eficiencia</div>' +
-        '<div class="metrics-row four">' +
-        mBox(fmt(ctr, '', '%', 2), 'CTR', ctrC(ctr), bgC(ctrC(ctr))) +
-        mBox(fmt(cpc, '$', '', 0), 'CPC', cpcC(cpc), bgC(cpcC(cpc))) +
-        mBox(fmt(cpm, '$', '', 0), 'CPM', cpmC(cpm), bgC(cpmC(cpm))) +
-        mBox(fmt(conv, '', '%', 1), 'Conv. Msg', convC(conv), bgC(convC(conv))) +
-        '</div>' +
-        '<div class="divider"></div>' +
-        '<div class="metrics-section-title">Conversion</div>' +
-        '<div class="metrics-row">' +
-        mBox(fmt(c.msgs, '', '', 0), 'Mensajes', 'clr-green', 'bg-green') +
-        mBox(fmt(cpmgs, '$', '', 0), 'Costo/Msg', cpmgsC(cpmgs), bgC(cpmgsC(cpmgs))) +
-        mBox(fmt(c.link_clicks, '', '', 0), 'Link Clicks', 'clr-purple', '') +
-        '</div></div>';
-}
-function renderDashboard(data) {
-    var campaigns = data.campaigns || [];
-    var totals = data.totals || {};
-    var active = campaigns.filter(function(c) { return c.status === 'ACTIVE'; });
-    var paused = campaigns.filter(function(c) { return c.status !== 'ACTIVE'; });
+    var budgetStr = (c.daily_budget && c.daily_budget > 0) ? '<span class="budget-badge">Presupuesto diario: ' + fmt(c.daily_budget,'$',' COP',0) + '</span>' : '';
+    return '<div class="campaign-card' + (isActive ? '' : ' paused-card') + '">'
+      + '<div class="campaign-header"><div class="campaign-name">' + c.name + '</div>'
+      + '<span class="badge ' + (isActive ? 'active' : 'paused') + '">' + (isActive ? 'ACTIVA' : 'PAUSADA') + '</span></div>'
+      + '<div class="acct-label">' + (c.account||'') + '</div>'
+      + (c.objective ? '<div class="objective-label ' + objClass(c.objective) + '">' + objLabel(c.objective) + '</div>' : '')
+      + budgetStr
+      + '<div class="metrics-section-title">Actividad</div>'
+      + '<div class="metrics-row four">'
+      + mBox(fmt(c.spend,'$','',0),'Gasto COP','clr-blue','')
+      + mBox(fmt(c.reach,'','',0),'Alcance','clr-neutral','')
+      + mBox(fmt(c.impressions,'','',0),'Impresiones','clr-neutral','')
+      + mBox(fmt(freq,'','x',2),'Frecuencia',freqC(freq),bgC(freqC(freq)))
+      + '</div>'
+      + '<div class="divider"></div>'
+      + '<div class="metrics-section-title">Eficiencia</div>'
+      + '<div class="metrics-row four">'
+      + mBox(fmt(ctr,'','%',2),'CTR',ctrC(ctr),bgC(ctrC(ctr)))
+      + mBox(fmt(cpc,'$','',0),'CPC',cpcC(cpc),bgC(cpcC(cpc)))
+      + mBox(fmt(cpm,'$','',0),'CPM',cpmC(cpm),bgC(cpmC(cpm)))
+      + mBox(fmt(conv,'','%',1),'Conv. Msg',convC(conv),bgC(convC(conv)))
+      + '</div>'
+      + '<div class="divider"></div>'
+      + '<div class="metrics-section-title">Conversión</div>'
+      + '<div class="metrics-row">'
+      + mBox(fmt(c.msgs,'','',0),'Mensajes','clr-green','bg-green')
+      + mBox(fmt(cpmgs,'$','',0),'Costo/Msg',cpmgsC(cpmgs),bgC(cpmgsC(cpmgs)))
+      + mBox(fmt(c.link_clicks||c.clicks,'','',0),'Link Clicks','clr-purple','')
+      + '</div></div>';
+  }
+
+  function renderDashboard(data) {
+    var campaigns = data.campaigns || [], totals = data.totals || {};
+    var active = campaigns.filter(function(c){ return c.status === 'ACTIVE'; });
+    var paused = campaigns.filter(function(c){ return c.status !== 'ACTIVE'; });
     var html = renderSummary(totals, campaigns);
-    html += '<div class="legend">' +
-        '<div class="legend-item"><div class="legend-dot" style="background:#16a34a"></div> Buen rendimiento</div>' +
-        '<div class="legend-item"><div class="legend-dot" style="background:#d97706"></div> Rendimiento medio</div>' +
-        '<div class="legend-item"><div class="legend-dot" style="background:#dc2626"></div> Costo alto</div>' +
-        '</div>';
+    html += '<div class="legend">'
+      + '<div class="legend-item"><div class="legend-dot" style="background:#16a34a"></div> Buen rendimiento</div>'
+      + '<div class="legend-item"><div class="legend-dot" style="background:#d97706"></div> Rendimiento medio</div>'
+      + '<div class="legend-item"><div class="legend-dot" style="background:#dc2626"></div> Costo alto</div>'
+      + '</div>';
     if (active.length > 0) {
-        html += '<div class="section-title"><div class="dot"></div> Campanas Activas (' + active.length + ')</div>';
-        html += '<div class="campaigns">' + active.map(renderCard).join('') + '</div>';
+      html += '<div class="section-title"><div class="dot"></div> Campañas Activas (' + active.length + ')</div>';
+      html += '<div class="campaigns">' + active.map(renderCard).join('') + '</div>';
     }
     if (paused.length > 0) {
-        html += '<div class="section-title" style="color:#9ca3af;"><div class="dot" style="background:#ccc;animation:none"></div> Campanas Pausadas (' + paused.length + ')</div>';
-        html += '<div class="campaigns">' + paused.map(renderCard).join('') + '</div>';
+      var pwData = paused.filter(function(c){ return c.impressions > 0 || c.spend > 0; });
+      var pwNone = paused.filter(function(c){ return c.impressions === 0 && c.spend === 0; });
+      if (pwData.length > 0) {
+        html += '<div class="section-title" style="color:#9ca3af;"><div class="dot" style="background:#f97316;animation:none"></div> Campañas Pausadas con actividad (' + pwData.length + ')</div>';
+        html += '<div class="campaigns">' + pwData.map(renderCard).join('') + '</div>';
+      }
+      if (pwNone.length > 0) {
+        html += '<div class="section-title" style="color:#9ca3af;cursor:pointer;" onclick="togglePaused()">'
+          + '<div class="dot" style="background:#ccc;animation:none"></div>'
+          + ' <span id="pausedToggleLabel">Campañas sin actividad (' + pwNone.length + ') ▸</span></div>';
+        html += '<div id="pausedNoDataSection" style="display:none;">';
+        html += '<div class="campaigns">' + pwNone.map(renderCard).join('') + '</div></div>';
+      }
     }
     document.getElementById('content').innerHTML = html;
-}
-async function loadData() {
+  }
+
+  function togglePaused() {
+    var sec = document.getElementById('pausedNoDataSection');
+    var lbl = document.getElementById('pausedToggleLabel');
+    if (!sec) return;
+    var hidden = sec.style.display === 'none';
+    sec.style.display = hidden ? 'block' : 'none';
+    if (lbl) lbl.textContent = lbl.textContent.replace(hidden ? '▸' : '▾', hidden ? '▾' : '▸');
+  }
+
+  function switchPeriod(btn) {
+    if (isLoading) return;
+    var file = btn.getAttribute('data-file');
+    var label = btn.getAttribute('data-label');
+    if (file === currentFile) return;
+    document.querySelectorAll('.period-btn').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+    currentFile = file; currentLabel = label;
+    loadData(file, label);
+  }
+
+  async function loadData(file, label) {
+    if (isLoading) return;
+    isLoading = true;
+    file = file || currentFile; label = label || currentLabel;
+    var refreshBtn = document.getElementById('refreshBtn');
+    var activeBtn = document.querySelector('.period-btn.active');
+    if (refreshBtn) { refreshBtn.disabled = true; refreshBtn.classList.add('loading'); refreshBtn.textContent = '⏳ Actualizando...'; }
+    if (activeBtn) activeBtn.classList.add('loading-period');
+    document.getElementById('content').innerHTML = '<div class="loading"><div class="spinner"></div><p>Cargando datos de ' + label + '...</p></div>';
     try {
-        document.getElementById('content').innerHTML = '<div class="loading"><div class="spinner"></div><p>Cargando datos...</p></div>';
-        var r = await fetch('data.json?t=' + Date.now());
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        var data = await r.json();
-        renderDashboard(data);
-        var ts = data.timestamp ? new Date(data.timestamp).toLocaleString('es-CO') : '?';
-        document.getElementById('lastUpdate').textContent = 'Actualizado: ' + ts;
+      var r = await fetch(file + '?t=' + Date.now());
+      if (!r.ok) throw new Error('HTTP ' + r.status + ' — archivo no encontrado: ' + file);
+      var data = await r.json();
+      renderDashboard(data);
+      var ts = data.timestamp ? new Date(data.timestamp).toLocaleString('es-CO') : '?';
+      document.getElementById('lastUpdate').textContent = ts + ' (' + label + ')';
     } catch(e) {
-        document.getElementById('content').innerHTML = '<div class="loading"><p style="color:#dc2626;font-weight:600;">Error al cargar datos</p></div>';
+      document.getElementById('content').innerHTML =
+        '<div class="loading"><p style="color:#dc2626;font-weight:600;">⚠️ No se pudo cargar: ' + (e.message||'error') + '</p>'
+        + '<p style="margin-top:8px;font-size:13px;color:#65676b;">Ejecuta el workflow de GitHub Actions para generar los datos de este período.</p></div>';
+    } finally {
+      isLoading = false;
+      if (refreshBtn) { refreshBtn.disabled = false; refreshBtn.classList.remove('loading'); refreshBtn.textContent = '🔄 Actualizar'; }
+      if (activeBtn) activeBtn.classList.remove('loading-period');
     }
-}
-function refreshData() { loadData(); }
-loadData();
+  }
+
+  function refreshData() { loadData(currentFile, currentLabel); }
+  loadData('data_month.json', 'Este mes');
 </script>
 </body>
 </html>
