@@ -1,8 +1,8 @@
 {
-  "timestamp": "2026-04-08T12:26:07.692999",
+  "timestamp": "2026-04-08T12:26:08.829669",
   "period": {
-    "preset": "this_month",
-    "label": "Este mes"
+    "preset": "last_month",
+    "label": "Mes anterior"
   },
   "campaigns": [],
   "totals": {
