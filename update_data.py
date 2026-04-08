@@ -1,116 +1,221 @@
-"""
-BePelican — Generador de Data para Web App
-Ejecutar: python3 update_data.py
-Genera el archivo data.json que la Web App usa para mostrar datos
-"""
-
 import requests
 import json
 import os
 from datetime import datetime
 
-# Get token from environment variable (GitHub Actions) or fallback to hardcoded value
-# For production on GitHub: set META_TOKEN in GitHub Secrets
-# For local testing: replace the string below with your token
-TOKEN = os.getenv("META_TOKEN", "EAFZAnIUQUoCMBREAl5ZBnJo7PhBHHzNYQZCdCtx0LuGEcDI7I1y13u6x20CQ8AJWQe2EXZAy5VBOUfFqvcgtQsjYxmQR9ABhfQNcUZCujr6ZBvPst0sRByBMsYd0UWVycZBF769D8EKCzArHuwTJqXqohScA6Vzj3mZAZCQDZBqiQtsYhTwKW9RpayJC54LA07UPlJggZDZD")
+TOKEN = os.environ.get("META_ACCESS_TOKEN")
+ACCOUNTS = ["act_3166782", "act_5581288064452"]
+API_VERSION = "v21.0"
+BASE_URL = f"https://graph.facebook.com/{API_VERSION}"
 
-ACCOUNTS = {
-    "act_31667825": "BePelican | Chepe",
-    "act_558128806445249": "Be Pelican"
-}
+# Períodos disponibles: (nombre_archivo, date_preset, etiqueta)
+PERIODS = [
+    ("data_today.json",       "today",              "Hoy"),
+    ("data_week.json",        "this_week_mon_today", "Esta semana"),
+    ("data_month.json",       "this_month",         "Este mes"),
+    ("data_last_month.json",  "last_month",         "Mes anterior"),
+    ("data_3months.json",     "last_90d",           "Últimos 3 meses"),
+]
 
-def get_campaigns(account_id):
-    url = f"https://graph.facebook.com/v19.0/{account_id}/campaigns"
-    params = {
-        "fields": "name,status,objective,daily_budget,insights.date_preset(last_30d){spend,impressions,clicks,ctr,cpc,reach,frequency,actions}",
-        "access_token": TOKEN
-    }
+# data.json sigue existiendo como alias de "este mes" (retrocompatibilidad)
+DEFAULT_PERIOD_FILE = "data_month.json"
+
+
+def get_account_name(account_id):
+    url = f"{BASE_URL}/{account_id}"
+    params = {"access_token": TOKEN, "fields": "name"}
     r = requests.get(url, params=params)
     data = r.json()
-    if "error" in data:
-        print(f"  ❌ Error: {data['error']['message']}")
-        return []
-    return data.get("data", [])
+    if "name" in data:
+        return data["name"]
+    return account_id
 
-def get_action(actions, keyword):
+
+def get_campaigns(account_id, date_preset):
+    url = f"{BASE_URL}/{account_id}/campaigns"
+    params = {
+        "access_token": TOKEN,
+        "fields": (
+            "name,status,objective,daily_budget,"
+            "insights{"
+            "spend,impressions,clicks,ctr,cpc,reach,frequency,"
+            "actions,engagement_rate_ranking"
+            "}"
+        ),
+        "date_preset": date_preset,
+        "limit": 100
+    }
+    r = requests.get(url, params=params)
+    result = r.json()
+    if "error" in result:
+        print(f"  ⚠️  Error en {account_id}: {result['error'].get('message', result['error'])}")
+        return []
+    return result.get("data", [])
+
+
+def extract_msgs(actions):
+    if not actions:
+        return 0
     for a in actions:
-        if keyword in a.get("action_type", ""):
-            return int(a.get("value", 0))
+        if a.get("action_type") in [
+            "onsite_conversion.messaging_conversation_started_7d",
+            "onsite_conversion.messaging_first_reply"
+        ]:
+            return int(float(a.get("value", 0)))
     return 0
 
-def fetch_all_data():
-    campaigns = []
-    totals = {"spend": 0, "reach": 0, "msgs": 0, "impressions": 0, "clicks": 0, "ctr_avg": 0}
 
-    for account_id, account_name in ACCOUNTS.items():
-        for c in get_campaigns(account_id):
-            ins_list = c.get("insights", {}).get("data", [])
-            ins = ins_list[0] if ins_list else {}
-            actions = ins.get("actions", [])
+def extract_engagements(actions):
+    if not actions:
+        return 0
+    engagement_types = {
+        "post_engagement", "page_engagement",
+        "post_reaction", "post", "comment", "like", "video_view"
+    }
+    total = 0
+    for a in actions:
+        if a.get("action_type") in engagement_types:
+            total += int(float(a.get("value", 0)))
+    return total
 
-            spend       = float(ins.get("spend", 0))
-            impressions = int(ins.get("impressions", 0))
-            clicks      = int(ins.get("clicks", 0))
-            ctr         = float(ins.get("ctr", 0))
-            cpc         = float(ins.get("cpc", 0))
-            reach       = int(ins.get("reach", 0))
-            frequency   = float(ins.get("frequency", 0))
-            msgs        = get_action(actions, "messaging_connection")
-            engagements = get_action(actions, "post_engagement")
-            link_clicks = get_action(actions, "link_click")
 
-            # Contabilizar activas
-            if c["status"] == "ACTIVE":
-                totals["spend"]       += spend
-                totals["reach"]       += reach
-                totals["msgs"]        += msgs
-                totals["impressions"] += impressions
-                totals["clicks"]      += clicks
-
-            campaigns.append({
-                "account": account_name,
-                "name": c["name"],
-                "status": c["status"],
-                "objective": c.get("objective", ""),
-                "daily_budget": int(c.get("daily_budget", 0)),
-                "spend": spend,
-                "impressions": impressions,
-                "clicks": clicks,
-                "ctr": ctr,
-                "cpc": cpc,
-                "reach": reach,
-                "frequency": frequency,
-                "msgs": msgs,
-                "engagements": engagements,
-                "link_clicks": link_clicks,
-            })
-
-    # Calcular CTR promedio
-    if totals["impressions"] > 0:
-        totals["ctr_avg"] = (totals["clicks"] / totals["impressions"]) * 100
-
-    return {
-        "timestamp": datetime.now().isoformat(),
-        "campaigns": campaigns,
-        "totals": totals
+def fetch_period_data(date_preset, label):
+    print(f"\n📅 Obteniendo datos para: {label} ({date_preset})")
+    campaigns_out = []
+    totals = {
+        "spend": 0.0,
+        "reach": 0,
+        "msgs": 0,
+        "impressions": 0,
+        "clicks": 0,
+        "ctr_vals": [],
+        "freq_vals": [],
+        "active_freq_sum": 0.0,
+        "active_impressions": 0,
+        "active_reach": 0,
     }
 
-if __name__ == "__main__":
-    print("🦤 BePelican — Actualizando datos...")
+    for acct in ACCOUNTS:
+        acct_name = get_account_name(acct)
+        campaigns = get_campaigns(acct, date_preset)
+        print(f"  🏷️  {acct_name}: {len(campaigns)} campañas")
+
+        for c in campaigns:
+            ins_data = c.get("insights", {})
+            ins = ins_data.get("data", [{}])[0] if ins_data else {}
+
+            spend        = float(ins.get("spend", 0))
+            reach        = int(ins.get("reach", 0))
+            impressions  = int(ins.get("impressions", 0))
+            clicks       = int(ins.get("clicks", 0))
+            ctr          = float(ins.get("ctr", 0))
+            cpc_raw      = ins.get("cpc", None)
+            cpc          = float(cpc_raw) if cpc_raw else (spend / clicks if clicks > 0 else 0.0)
+            frequency    = float(ins.get("frequency", 0))
+            actions      = ins.get("actions", [])
+            msgs         = extract_msgs(actions)
+            engagements  = extract_engagements(actions)
+
+            # Budget diario (puede ser 0 si usa presupuesto de conjunto de anuncios)
+            daily_budget_raw = c.get("daily_budget", "0")
+            try:
+                daily_budget = int(daily_budget_raw) // 100  # en COP (la API retorna centavos)
+            except (ValueError, TypeError):
+                daily_budget = 0
+
+            campaign_entry = {
+                "id":           c.get("id"),
+                "account":      acct_name,
+                "name":         c.get("name"),
+                "status":       c.get("status", "UNKNOWN"),
+                "objective":    c.get("objective", ""),
+                "daily_budget": daily_budget,
+                "spend":        spend,
+                "impressions":  impressions,
+                "clicks":       clicks,
+                "link_clicks":  clicks,   # aproximación si no hay breakdown
+                "ctr":          ctr,
+                "cpc":          cpc,
+                "reach":        reach,
+                "frequency":    frequency,
+                "msgs":         msgs,
+                "engagements":  engagements,
+            }
+            campaigns_out.append(campaign_entry)
+
+            # Acumular totales
+            totals["spend"]       += spend
+            totals["reach"]       += reach
+            totals["msgs"]        += msgs
+            totals["impressions"] += impressions
+            totals["clicks"]      += clicks
+            if ctr > 0:
+                totals["ctr_vals"].append(ctr)
+            if frequency > 0:
+                totals["freq_vals"].append(frequency)
+
+            # Para frecuencia ponderada de campañas activas
+            if c.get("status") == "ACTIVE" and reach > 0:
+                totals["active_freq_sum"]    += frequency * reach
+                totals["active_impressions"] += impressions
+                totals["active_reach"]       += reach
+
+    # Métricas globales calculadas correctamente
+    ti = totals["impressions"]
+    tc = totals["clicks"]
+    ts = totals["spend"]
+    tr = totals["active_reach"]
+
+    ctr_weighted  = (tc / ti * 100) if ti > 0 else 0.0
+    cpm_global    = (ts / ti * 1000) if ti > 0 else 0.0
+    freq_weighted = (totals["active_freq_sum"] / tr) if tr > 0 else 0.0
+
+    output = {
+        "timestamp": datetime.utcnow().isoformat(),
+        "period":    {"preset": date_preset, "label": label},
+        "campaigns": campaigns_out,
+        "totals": {
+            "spend":       ts,
+            "reach":       totals["reach"],
+            "msgs":        totals["msgs"],
+            "impressions": ti,
+            "clicks":      tc,
+            "ctr_avg":     ctr_weighted,   # ✅ CTR ponderado real
+            "cpm":         cpm_global,     # ✅ CPM global correcto
+            "frequency":   freq_weighted,  # ✅ Frecuencia ponderada
+        }
+    }
+
+    active_count  = sum(1 for c in campaigns_out if c["status"] == "ACTIVE")
+    paused_count  = len(campaigns_out) - active_count
+    print(f"  ✅ {active_count} activas, {paused_count} pausadas — Gasto total: ${ts:,.0f} COP")
+    return output
+
+
+# ──────────────────────────────────────────────────────────────────
+# MAIN
+# ──────────────────────────────────────────────────────────────────
+if not TOKEN:
+    print("❌ META_ACCESS_TOKEN no está configurado.")
+    exit(1)
+
+print("🚀 Iniciando actualización de datos BePelican Meta Ads...")
+
+for filename, preset, label in PERIODS:
     try:
-        data = fetch_all_data()
-
-        # Guardar en la carpeta del script
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        output_file = os.path.join(script_dir, "data.json")
-
-        with open(output_file, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
-
-        print(f"✅ Datos actualizados → {output_file}")
-        print(f"   Campañas: {len(data['campaigns'])}")
-        print(f"   Gasto: ${int(data['totals']['spend']):,} COP")
-        print(f"   Alcance: {data['totals']['reach']:,} personas")
-
+        data = fetch_period_data(preset, label)
+        with open(filename, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+        print(f"  💾 Guardado: {filename}")
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"  ❌ Error en período '{label}': {e}")
+
+# Mantener data.json como alias de "este mes" para retrocompatibilidad
+import shutil
+try:
+    shutil.copy(DEFAULT_PERIOD_FILE, "data.json")
+    print(f"\n🔁 data.json actualizado como alias de {DEFAULT_PERIOD_FILE}")
+except FileNotFoundError:
+    print(f"\n⚠️  No se pudo copiar {DEFAULT_PERIOD_FILE} a data.json")
+
+print("\n✅ Actualización completada.")
